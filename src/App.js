@@ -41,12 +41,26 @@ const App = () => {
     { type: 'Compressor 1600cfm', rentalType: 'Day', rate: 300, quantity: 0, markup: 0 }
   ]);
 
-  const [labor, setLabor] = useState(
-    Array.from({ length: 23 }, (_, i) => {
-      const diameter = `${6 + i * 3}"`;
-      return { diameter, wetLF: 0, prodRate: 300, rate: 2500, markup: 0 };
-    })
-  );
+  const [labor, setLabor] = useState([
+  { diameter: '6"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '8"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '10"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '12"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '15"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '18"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '21"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '24"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '27"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '30"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '36"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '42"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '48"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '54"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '60"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '66"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 },
+  { diameter: '72"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 }
+]);
+
 
   const handleMaterialChange = (i, field, value) => {
     const newList = [...materials];
@@ -141,31 +155,61 @@ const App = () => {
         </div>
       )}
 
-      {tab === 'labor' && (
+            {tab === 'labor' && (
         <div>
           <h2>Labor</h2>
           {labor.map((item, i) => {
             const days = item.prodRate > 0 ? Math.ceil(item.wetLF / item.prodRate) : 0;
-            const base = days * item.rate;
+            const base = days * item.rate + item.overhead;
             const total = base * (1 + item.markup / 100);
             return (
-              <div key={i}>
+              <div key={i} style={{ marginBottom: '15px' }}>
                 <strong>{item.diameter}</strong><br />
                 Wet LF:
-                <input type="number" value={item.wetLF} onChange={e => handleLaborChange(i, 'wetLF', e.target.value)} />
+                <input
+                  type="number"
+                  value={item.wetLF}
+                  onChange={e => handleLaborChange(i, 'wetLF', e.target.value)}
+                  style={{ width: '80px', marginLeft: '10px' }}
+                />
                 Prod Rate:
-                <input type="number" value={item.prodRate} onChange={e => handleLaborChange(i, 'prodRate', e.target.value)} />
+                <input
+                  type="number"
+                  value={item.prodRate}
+                  onChange={e => handleLaborChange(i, 'prodRate', e.target.value)}
+                  style={{ width: '80px', marginLeft: '10px' }}
+                />
                 Crew Rate:
-                <input type="number" value={item.rate} onChange={e => handleLaborChange(i, 'rate', e.target.value)} />
+                <input
+                  type="number"
+                  value={item.rate}
+                  onChange={e => handleLaborChange(i, 'rate', e.target.value)}
+                  style={{ width: '100px', marginLeft: '10px' }}
+                />
+                Overhead:
+                <input
+                  type="number"
+                  value={item.overhead}
+                  onChange={e => handleLaborChange(i, 'overhead', e.target.value)}
+                  style={{ width: '100px', marginLeft: '10px' }}
+                />
                 Markup %:
-                <input type="number" value={item.markup} onChange={e => handleLaborChange(i, 'markup', e.target.value)} />
-                Days: <strong>{days}</strong> | Cost: <strong>${total.toFixed(2)}</strong>
+                <input
+                  type="number"
+                  value={item.markup}
+                  onChange={e => handleLaborChange(i, 'markup', e.target.value)}
+                  style={{ width: '60px', marginLeft: '10px' }}
+                />
+                <div style={{ marginTop: '5px' }}>
+                  Crew Days: <strong>{days}</strong> | Total: <strong>${total.toFixed(2)}</strong>
+                </div>
               </div>
             );
           })}
           <h3>Labor Subtotal: ${laborSubtotal.toFixed(2)}</h3>
         </div>
       )}
+
 
       {tab !== 'materials' && tab !== 'equipment' && tab !== 'labor' && (
         <div>
