@@ -14,16 +14,64 @@ const App = () => {
     { name: 'Duct Tape', unitCost: 4, quantity: 0, markup: 0 }
   ]);
 
-  const handleMaterialChange = (index, field, value) => {
+  const [equipment, setEquipment] = useState([
+    { type: 'Pump 4"', rentalType: 'Day', rate: 100, quantity: 0, markup: 0 },
+    { type: 'Pump 6"', rentalType: 'Day', rate: 120, quantity: 0, markup: 0 },
+    { type: 'Pump 8"', rentalType: 'Day', rate: 150, quantity: 0, markup: 0 },
+    { type: 'Pump 12"', rentalType: 'Day', rate: 180, quantity: 0, markup: 0 },
+    { type: 'Plug 6"–10"', rentalType: 'Day', rate: 40, quantity: 0, markup: 0 },
+    { type: 'Plug 8"–12"', rentalType: 'Day', rate: 50, quantity: 0, markup: 0 },
+    { type: 'Plug 12"–18"', rentalType: 'Day', rate: 70, quantity: 0, markup: 0 },
+    { type: 'Plug 12"–24"', rentalType: 'Day', rate: 90, quantity: 0, markup: 0 },
+    { type: 'Plug 15"–30"', rentalType: 'Day', rate: 130, quantity: 0, markup: 0 },
+    { type: 'Plug 20"–40"', rentalType: 'Day', rate: 175, quantity: 0, markup: 0 },
+    { type: 'Plug 24"–48"', rentalType: 'Day', rate: 220, quantity: 0, markup: 0 },
+    { type: 'Plug 24"–60"', rentalType: 'Day', rate: 320, quantity: 0, markup: 0 },
+    { type: 'Plug 48"–72"', rentalType: 'Day', rate: 520, quantity: 0, markup: 0 },
+    { type: 'Plug 54"–96"', rentalType: 'Day', rate: 600, quantity: 0, markup: 0 },
+    { type: 'Urethane Plug 24"', rentalType: 'Day', rate: 90, quantity: 0, markup: 0 },
+    { type: 'Urethane Plug 30"', rentalType: 'Day', rate: 130, quantity: 0, markup: 0 },
+    { type: 'Urethane Plug 36"', rentalType: 'Day', rate: 175, quantity: 0, markup: 0 },
+    { type: 'Urethane Plug 48"', rentalType: 'Day', rate: 220, quantity: 0, markup: 0 },
+    { type: 'Boiler Truck', rentalType: 'Day', rate: 450, quantity: 0, markup: 0 },
+    { type: 'Excavator', rentalType: 'Day', rate: 500, quantity: 0, markup: 0 },
+    { type: 'Compressor 375cfm', rentalType: 'Day', rate: 100, quantity: 0, markup: 0 },
+    { type: 'Compressor 750cfm', rentalType: 'Day', rate: 150, quantity: 0, markup: 0 },
+    { type: 'Compressor 925cfm', rentalType: 'Day', rate: 200, quantity: 0, markup: 0 },
+    { type: 'Compressor 1600cfm', rentalType: 'Day', rate: 300, quantity: 0, markup: 0 }
+  ]);
+
+  const [labor, setLabor] = useState(
+    Array.from({ length: 23 }, (_, i) => {
+      const diameter = `${6 + i * 3}"`;
+      return { diameter, wetLF: 0, prodRate: 300, rate: 2500, markup: 0 };
+    })
+  );
+
+  const handleMaterialChange = (i, field, value) => {
     const newList = [...materials];
-    newList[index][field] = parseFloat(value);
+    newList[i][field] = parseFloat(value);
     setMaterials(newList);
   };
 
-  const materialsSubtotal = materials.reduce((sum, item) => {
-    const line = item.unitCost * item.quantity;
-    const total = line * (1 + item.markup / 100);
-    return sum + total;
+  const handleEquipmentChange = (i, field, value) => {
+    const newList = [...equipment];
+    newList[i][field] = parseFloat(value);
+    setEquipment(newList);
+  };
+
+  const handleLaborChange = (i, field, value) => {
+    const newList = [...labor];
+    newList[i][field] = parseFloat(value);
+    setLabor(newList);
+  };
+
+  const materialsSubtotal = materials.reduce((sum, item) => sum + item.unitCost * item.quantity * (1 + item.markup / 100), 0);
+  const equipmentSubtotal = equipment.reduce((sum, item) => sum + item.rate * item.quantity * (1 + item.markup / 100), 0);
+  const laborSubtotal = labor.reduce((sum, item) => {
+    const days = item.prodRate > 0 ? Math.ceil(item.wetLF / item.prodRate) : 0;
+    const base = days * item.rate;
+    return sum + base * (1 + item.markup / 100);
   }, 0);
 
   return (
@@ -53,85 +101,46 @@ const App = () => {
         <div>
           <h2>Materials</h2>
           {materials.map((item, i) => (
-            <div key={i} style={{ marginBottom: '10px' }}>
+            <div key={i}>
               <strong>{item.name}</strong><br />
               Unit Cost: $
-              <input
-                type="number"
-                value={item.unitCost}
-                onChange={e => handleMaterialChange(i, 'unitCost', e.target.value)}
-                style={{ width: '80px', marginLeft: '10px' }}
-              />
+              <input type="number" value={item.unitCost} onChange={e => handleMaterialChange(i, 'unitCost', e.target.value)} />
               Qty:
-              <input
-                type="number"
-                value={item.quantity}
-                onChange={e => handleMaterialChange(i, 'quantity', e.target.value)}
-                style={{ width: '60px', marginLeft: '10px' }}
-              />
+              <input type="number" value={item.quantity} onChange={e => handleMaterialChange(i, 'quantity', e.target.value)} />
               Markup %:
-              <input
-                type="number"
-                value={item.markup}
-                onChange={e => handleMaterialChange(i, 'markup', e.target.value)}
-                style={{ width: '60px', marginLeft: '10px' }}
-              />
-              <span style={{ marginLeft: '15px' }}>
-                Total: ${(item.unitCost * item.quantity * (1 + item.markup / 100)).toFixed(2)}
-              </span>
+              <input type="number" value={item.markup} onChange={e => handleMaterialChange(i, 'markup', e.target.value)} />
+              Total: ${(item.unitCost * item.quantity * (1 + item.markup / 100)).toFixed(2)}
             </div>
           ))}
           <h3>Materials Subtotal: ${materialsSubtotal.toFixed(2)}</h3>
         </div>
       )}
+
       {tab === 'equipment' && (
         <div>
           <h2>Equipment</h2>
-          {equipment.map((item, i) => {
-            const total = item.rate * item.quantity * (1 + item.markup / 100);
-            return (
-              <div key={i} style={{ marginBottom: '10px' }}>
-                <strong>{item.type}</strong><br />
-                Rental Type:
-                <select
-                  value={item.rentalType}
-                  onChange={e => handleEquipmentChange(i, 'rentalType', e.target.value)}
-                  style={{ margin: '0 10px' }}
-                >
-                  {['Day', 'Week', 'Month'].map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-                Rate: $
-                <input
-                  type="number"
-                  value={item.rate}
-                  onChange={e => handleEquipmentChange(i, 'rate', e.target.value)}
-                  style={{ width: '80px', marginLeft: '10px' }}
-                />
-                Qty:
-                <input
-                  type="number"
-                  value={item.quantity}
-                  onChange={e => handleEquipmentChange(i, 'quantity', e.target.value)}
-                  style={{ width: '60px', marginLeft: '10px' }}
-                />
-                Markup %:
-                <input
-                  type="number"
-                  value={item.markup}
-                  onChange={e => handleEquipmentChange(i, 'markup', e.target.value)}
-                  style={{ width: '60px', marginLeft: '10px' }}
-                />
-                <span style={{ marginLeft: '15px' }}>
-                  Total: ${total.toFixed(2)}
-                </span>
-              </div>
-            );
-          })}
+          {equipment.map((item, i) => (
+            <div key={i}>
+              <strong>{item.type}</strong><br />
+              Rental Type:
+              <select value={item.rentalType} onChange={e => handleEquipmentChange(i, 'rentalType', e.target.value)}>
+                {['Day', 'Week', 'Month'].map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+              Rate: $
+              <input type="number" value={item.rate} onChange={e => handleEquipmentChange(i, 'rate', e.target.value)} />
+              Qty:
+              <input type="number" value={item.quantity} onChange={e => handleEquipmentChange(i, 'quantity', e.target.value)} />
+              Markup %:
+              <input type="number" value={item.markup} onChange={e => handleEquipmentChange(i, 'markup', e.target.value)} />
+              Total: ${(item.rate * item.quantity * (1 + item.markup / 100)).toFixed(2)}
+            </div>
+          ))}
           <h3>Equipment Subtotal: ${equipmentSubtotal.toFixed(2)}</h3>
         </div>
       )}
+
       {tab === 'labor' && (
         <div>
           <h2>Labor</h2>
@@ -140,39 +149,17 @@ const App = () => {
             const base = days * item.rate;
             const total = base * (1 + item.markup / 100);
             return (
-              <div key={i} style={{ marginBottom: '15px' }}>
+              <div key={i}>
                 <strong>{item.diameter}</strong><br />
                 Wet LF:
-                <input
-                  type="number"
-                  value={item.wetLF}
-                  onChange={e => handleLaborChange(i, 'wetLF', e.target.value)}
-                  style={{ width: '80px', marginLeft: '10px' }}
-                />
+                <input type="number" value={item.wetLF} onChange={e => handleLaborChange(i, 'wetLF', e.target.value)} />
                 Prod Rate:
-                <input
-                  type="number"
-                  value={item.prodRate}
-                  onChange={e => handleLaborChange(i, 'prodRate', e.target.value)}
-                  style={{ width: '80px', marginLeft: '10px' }}
-                />
+                <input type="number" value={item.prodRate} onChange={e => handleLaborChange(i, 'prodRate', e.target.value)} />
                 Crew Rate:
-                <input
-                  type="number"
-                  value={item.rate}
-                  onChange={e => handleLaborChange(i, 'rate', e.target.value)}
-                  style={{ width: '100px', marginLeft: '10px' }}
-                />
+                <input type="number" value={item.rate} onChange={e => handleLaborChange(i, 'rate', e.target.value)} />
                 Markup %:
-                <input
-                  type="number"
-                  value={item.markup}
-                  onChange={e => handleLaborChange(i, 'markup', e.target.value)}
-                  style={{ width: '60px', marginLeft: '10px' }}
-                />
-                <div style={{ marginTop: '5px' }}>
-                  Crew Days: <strong>{days}</strong> | Cost w/ Markup: <strong>${total.toFixed(2)}</strong>
-                </div>
+                <input type="number" value={item.markup} onChange={e => handleLaborChange(i, 'markup', e.target.value)} />
+                Days: <strong>{days}</strong> | Cost: <strong>${total.toFixed(2)}</strong>
               </div>
             );
           })}
@@ -189,44 +176,6 @@ const App = () => {
   );
 };
 
-// State + handlers for Equipment and Labor tabs
-const [equipment, setEquipment] = useState([
-  {{ type: 'Pump 4"', rentalType: 'Day', rate: 100, quantity: 0, markup: 0 }},
-  {{ type: 'Plug 6"–10"', rentalType: 'Day', rate: 40, quantity: 0, markup: 0 }},
-  {{ type: 'Compressor 375cfm', rentalType: 'Day', rate: 100, quantity: 0, markup: 0 }},
-  {{ type: 'Boiler Truck', rentalType: 'Day', rate: 450, quantity: 0, markup: 0 }}
-]);
-
-const handleEquipmentChange = (index, field, value) => {
-  const newList = [...equipment];
-  newList[index][field] = parseFloat(value);
-  setEquipment(newList);
-};
-
-const equipmentSubtotal = equipment.reduce((sum, item) => {
-  const total = item.rate * item.quantity * (1 + item.markup / 100);
-  return sum + total;
-}, 0);
-
-const [labor, setLabor] = useState([
-  ...Array.from({ length: 23 }, (_, i) => {
-    const diameter = `${6 + i * 3}"`;
-    return { diameter, wetLF: 0, prodRate: 300, rate: 2500, markup: 0 };
-  })
-]);
-
-const handleLaborChange = (index, field, value) => {
-  const newList = [...labor];
-  newList[index][field] = parseFloat(value);
-  setLabor(newList);
-};
-
-const laborSubtotal = labor.reduce((sum, item) => {
-  const days = item.prodRate > 0 ? Math.ceil(item.wetLF / item.prodRate) : 0;
-  const base = days * item.rate;
-  const total = base * (1 + item.markup / 100);
-  return sum + total;
-}, 0);
-
 export default App;
+
 
