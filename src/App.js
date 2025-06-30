@@ -155,7 +155,7 @@ const App = () => {
         </div>
       )}
 
-                  {tab === 'labor' && (
+     {tab === 'labor' && (
         <div>
           <h2>Labor</h2>
           {labor.map((item, i) => {
@@ -214,8 +214,6 @@ const App = () => {
           <h3>Labor Subtotal: ${laborSubtotal.toFixed(2)}</h3>
         </div>
       )}
-
-
 
       {tab !== 'materials' && tab !== 'equipment' && tab !== 'labor' && (
         <div>
