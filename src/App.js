@@ -14,52 +14,15 @@ const App = () => {
     { name: 'Duct Tape', unitCost: 4, quantity: 0, markup: 0 }
   ]);
 
-  const [equipment, setEquipment] = useState([
-    { type: 'Pump 4"', rentalType: 'Day', rate: 100, quantity: 0, markup: 0 },
-    { type: 'Boiler Truck', rentalType: 'Day', rate: 450, quantity: 0, markup: 0 },
-    { type: 'Compressor 750cfm', rentalType: 'Day', rate: 150, quantity: 0, markup: 0 }
-  ]);
-
-  const [labor, setLabor] = useState([
-    { diameter: '6"', wetLF: 0, rate: 2500, prodRate: 300, markup: 0 },
-    { diameter: '8"', wetLF: 0, rate: 2500, prodRate: 280, markup: 0 },
-    { diameter: '10"', wetLF: 0, rate: 2500, prodRate: 260, markup: 0 },
-    { diameter: '12"', wetLF: 0, rate: 2500, prodRate: 240, markup: 0 }
-  ]);
-
   const handleMaterialChange = (index, field, value) => {
     const newList = [...materials];
     newList[index][field] = parseFloat(value);
     setMaterials(newList);
   };
 
-  const handleEquipmentChange = (index, field, value) => {
-    const newList = [...equipment];
-    newList[index][field] = parseFloat(value);
-    setEquipment(newList);
-  };
-
-  const handleLaborChange = (index, field, value) => {
-    const newList = [...labor];
-    newList[index][field] = parseFloat(value);
-    setLabor(newList);
-  };
-
   const materialsSubtotal = materials.reduce((sum, item) => {
     const line = item.unitCost * item.quantity;
     const total = line * (1 + item.markup / 100);
-    return sum + total;
-  }, 0);
-
-  const equipmentSubtotal = equipment.reduce((sum, item) => {
-    const total = item.rate * item.quantity * (1 + item.markup / 100);
-    return sum + total;
-  }, 0);
-
-  const laborSubtotal = labor.reduce((sum, item) => {
-    const days = item.prodRate > 0 ? Math.ceil(item.wetLF / item.prodRate) : 0;
-    const base = days * item.rate;
-    const total = base * (1 + item.markup / 100);
     return sum + total;
   }, 0);
 
@@ -121,7 +84,6 @@ const App = () => {
           <h3>Materials Subtotal: ${materialsSubtotal.toFixed(2)}</h3>
         </div>
       )}
-
       {tab === 'equipment' && (
         <div>
           <h2>Equipment</h2>
@@ -170,7 +132,6 @@ const App = () => {
           <h3>Equipment Subtotal: ${equipmentSubtotal.toFixed(2)}</h3>
         </div>
       )}
-
       {tab === 'labor' && (
         <div>
           <h2>Labor</h2>
@@ -228,4 +189,44 @@ const App = () => {
   );
 };
 
+// State + handlers for Equipment and Labor tabs
+const [equipment, setEquipment] = useState([
+  {{ type: 'Pump 4"', rentalType: 'Day', rate: 100, quantity: 0, markup: 0 }},
+  {{ type: 'Plug 6"–10"', rentalType: 'Day', rate: 40, quantity: 0, markup: 0 }},
+  {{ type: 'Compressor 375cfm', rentalType: 'Day', rate: 100, quantity: 0, markup: 0 }},
+  {{ type: 'Boiler Truck', rentalType: 'Day', rate: 450, quantity: 0, markup: 0 }}
+]);
+
+const handleEquipmentChange = (index, field, value) => {
+  const newList = [...equipment];
+  newList[index][field] = parseFloat(value);
+  setEquipment(newList);
+};
+
+const equipmentSubtotal = equipment.reduce((sum, item) => {
+  const total = item.rate * item.quantity * (1 + item.markup / 100);
+  return sum + total;
+}, 0);
+
+const [labor, setLabor] = useState([
+  ...Array.from({ length: 23 }, (_, i) => {
+    const diameter = `${6 + i * 3}"`;
+    return { diameter, wetLF: 0, prodRate: 300, rate: 2500, markup: 0 };
+  })
+]);
+
+const handleLaborChange = (index, field, value) => {
+  const newList = [...labor];
+  newList[index][field] = parseFloat(value);
+  setLabor(newList);
+};
+
+const laborSubtotal = labor.reduce((sum, item) => {
+  const days = item.prodRate > 0 ? Math.ceil(item.wetLF / item.prodRate) : 0;
+  const base = days * item.rate;
+  const total = base * (1 + item.markup / 100);
+  return sum + total;
+}, 0);
+
 export default App;
+
