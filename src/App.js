@@ -61,6 +61,25 @@ const App = () => {
   { diameter: '72"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 }
 ]);
 
+const [fuel, setFuel] = useState([
+  { name: 'Boiler Truck', gallons: 0, cost: 4.5, markup: 0 },
+  { name: 'Reefer Truck', gallons: 0, cost: 4.5, markup: 0 },
+  { name: 'CCTV Truck', gallons: 0, cost: 4.5, markup: 0 },
+  { name: 'Vac Truck', gallons: 0, cost: 4.5, markup: 0 },
+  { name: 'Compressors', gallons: 0, cost: 4.5, markup: 0 },
+  { name: 'Pumps', gallons: 0, cost: 4.5, markup: 0 },
+  { name: 'Pickup Truck', gallons: 0, cost: 4.5, markup: 0 }
+]);
+
+const handleFuelChange = (index, field, value) => {
+  const newList = [...fuel];
+  newList[index][field] = parseFloat(value);
+  setFuel(newList);
+};
+
+const fuelSubtotal = fuel.reduce((sum, item) => {
+  return sum + item.gallons * item.cost * (1 + item.markup / 100);
+}, 0);
 
   const handleMaterialChange = (i, field, value) => {
     const newList = [...materials];
@@ -215,6 +234,44 @@ const App = () => {
             );
           })}
           <h3>Labor Subtotal: ${laborSubtotal.toFixed(2)}</h3>
+        </div>
+      )}
+      {tab === 'fuel' && (
+        <div>
+          <h2>Fuel</h2>
+          {fuel.map((item, i) => {
+            const lineTotal = item.gallons * item.cost * (1 + item.markup / 100);
+            return (
+              <div key={i} style={{ marginBottom: '15px' }}>
+                <strong>{item.name}</strong><br />
+                Gallons:
+                <input
+                  type="number"
+                  value={item.gallons}
+                  onChange={e => handleFuelChange(i, 'gallons', e.target.value)}
+                  style={{ width: '80px', marginLeft: '10px' }}
+                />
+                Cost/Gallon:
+                <input
+                  type="number"
+                  value={item.cost}
+                  onChange={e => handleFuelChange(i, 'cost', e.target.value)}
+                  style={{ width: '80px', marginLeft: '10px' }}
+                />
+                Markup %:
+                <input
+                  type="number"
+                  value={item.markup}
+                  onChange={e => handleFuelChange(i, 'markup', e.target.value)}
+                  style={{ width: '60px', marginLeft: '10px' }}
+                />
+                <span style={{ marginLeft: '15px' }}>
+                  Total: ${lineTotal.toFixed(2)}
+                </span>
+              </div>
+            );
+          })}
+          <h3>Fuel Subtotal: ${fuelSubtotal.toFixed(2)}</h3>
         </div>
       )}
 
