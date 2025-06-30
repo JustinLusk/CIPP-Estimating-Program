@@ -83,10 +83,13 @@ const App = () => {
   const materialsSubtotal = materials.reduce((sum, item) => sum + item.unitCost * item.quantity * (1 + item.markup / 100), 0);
   const equipmentSubtotal = equipment.reduce((sum, item) => sum + item.rate * item.quantity * (1 + item.markup / 100), 0);
   const laborSubtotal = labor.reduce((sum, item) => {
-    const days = item.prodRate > 0 ? Math.ceil(item.wetLF / item.prodRate) : 0;
-    const base = days * item.rate;
-    return sum + base * (1 + item.markup / 100);
-  }, 0);
+  const crewDays = item.prodRate > 0 ? Math.ceil(item.wetLF / item.prodRate) : 0;
+  const crewCost = crewDays * item.rate;
+  const overheadCost = crewDays * item.overhead;
+  const base = crewCost + overheadCost;
+  const total = base * (1 + item.markup / 100);
+  return sum + total;
+}, 0);
 
   return (
     <div style={{ fontFamily: 'Arial', padding: '1rem' }}>
