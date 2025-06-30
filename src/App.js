@@ -5,11 +5,25 @@ const App = () => {
 
   const [labor, setLabor] = useState([
     { diameter: '6"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 300, markup: 0 },
-    { diameter: '8"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 250, markup: 0 },
-    { diameter: '12"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 200, markup: 0 },
-    { diameter: '24"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 150, markup: 0 },
-    { diameter: '36"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 100, markup: 0 },
-    { diameter: '48"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 75, markup: 0 }
+    { diameter: '8"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 280, markup: 0 },
+    { diameter: '10"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 260, markup: 0 },
+    { diameter: '12"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 240, markup: 0 },
+    { diameter: '15"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 220, markup: 0 },
+    { diameter: '18"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 200, markup: 0 },
+    { diameter: '21"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 180, markup: 0 },
+    { diameter: '24"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 160, markup: 0 },
+    { diameter: '27"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 140, markup: 0 },
+    { diameter: '30"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 120, markup: 0 },
+    { diameter: '33"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 100, markup: 0 },
+    { diameter: '36"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 90, markup: 0 },
+    { diameter: '39"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 80, markup: 0 },
+    { diameter: '42"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 70, markup: 0 },
+    { diameter: '45"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 60, markup: 0 },
+    { diameter: '48"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 50, markup: 0 },
+    { diameter: '54"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 40, markup: 0 },
+    { diameter: '60"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 35, markup: 0 },
+    { diameter: '66"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 30, markup: 0 },
+    { diameter: '72"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 25, markup: 0 }
   ]);
 
   const handleLaborChange = (index, field, value) => {
@@ -114,10 +128,6 @@ const App = () => {
         </div>
       )}
     </div>
-  );
-};
-
-export default App;
   );
 };
 
