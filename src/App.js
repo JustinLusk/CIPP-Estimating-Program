@@ -275,11 +275,12 @@ const fuelSubtotal = fuel.reduce((sum, item) => {
         </div>
       )}
 
-      {tab !== 'materials' && tab !== 'equipment' && tab !== 'labor' && (
-        <div>
-          <h2>{tab.charAt(0).toUpperCase() + tab.slice(1)} (coming next)</h2>
-        </div>
-      )}
+     {tab !== 'materials' && tab !== 'equipment' && tab !== 'labor' && tab !== 'fuel' && (
+  <div>
+    <h2>{tab.charAt(0).toUpperCase() + tab.slice(1)} (coming next)</h2>
+  </div>
+)}
+
     </div>
   );
 };
