@@ -14,17 +14,52 @@ const App = () => {
     { name: 'Duct Tape', unitCost: 4, quantity: 0, markup: 0 }
   ]);
 
+  const [equipment, setEquipment] = useState([
+    { type: 'Pump 4"', rentalType: 'Day', rate: 100, quantity: 0, markup: 0 },
+    { type: 'Boiler Truck', rentalType: 'Day', rate: 450, quantity: 0, markup: 0 },
+    { type: 'Compressor 750cfm', rentalType: 'Day', rate: 150, quantity: 0, markup: 0 }
+  ]);
+
+  const [labor, setLabor] = useState([
+    { diameter: '6"', wetLF: 0, rate: 2500, prodRate: 300, markup: 0 },
+    { diameter: '8"', wetLF: 0, rate: 2500, prodRate: 280, markup: 0 },
+    { diameter: '10"', wetLF: 0, rate: 2500, prodRate: 260, markup: 0 },
+    { diameter: '12"', wetLF: 0, rate: 2500, prodRate: 240, markup: 0 }
+  ]);
+
   const handleMaterialChange = (index, field, value) => {
     const newList = [...materials];
-    newList[index][field] = field === 'unitCost' || field === 'quantity' || field === 'markup'
-      ? parseFloat(value)
-      : value;
+    newList[index][field] = parseFloat(value);
     setMaterials(newList);
+  };
+
+  const handleEquipmentChange = (index, field, value) => {
+    const newList = [...equipment];
+    newList[index][field] = parseFloat(value);
+    setEquipment(newList);
+  };
+
+  const handleLaborChange = (index, field, value) => {
+    const newList = [...labor];
+    newList[index][field] = parseFloat(value);
+    setLabor(newList);
   };
 
   const materialsSubtotal = materials.reduce((sum, item) => {
     const line = item.unitCost * item.quantity;
     const total = line * (1 + item.markup / 100);
+    return sum + total;
+  }, 0);
+
+  const equipmentSubtotal = equipment.reduce((sum, item) => {
+    const total = item.rate * item.quantity * (1 + item.markup / 100);
+    return sum + total;
+  }, 0);
+
+  const laborSubtotal = labor.reduce((sum, item) => {
+    const days = item.prodRate > 0 ? Math.ceil(item.wetLF / item.prodRate) : 0;
+    const base = days * item.rate;
+    const total = base * (1 + item.markup / 100);
     return sum + total;
   }, 0);
 
@@ -86,12 +121,12 @@ const App = () => {
           <h3>Materials Subtotal: ${materialsSubtotal.toFixed(2)}</h3>
         </div>
       )}
+
       {tab === 'equipment' && (
         <div>
           <h2>Equipment</h2>
           {equipment.map((item, i) => {
-            const line = item.rate * item.quantity;
-            const total = line * (1 + item.markup / 100);
+            const total = item.rate * item.quantity * (1 + item.markup / 100);
             return (
               <div key={i} style={{ marginBottom: '10px' }}>
                 <strong>{item.type}</strong><br />
@@ -127,7 +162,7 @@ const App = () => {
                   style={{ width: '60px', marginLeft: '10px' }}
                 />
                 <span style={{ marginLeft: '15px' }}>
-                  Total: ${(total).toFixed(2)}
+                  Total: ${total.toFixed(2)}
                 </span>
               </div>
             );
@@ -135,12 +170,13 @@ const App = () => {
           <h3>Equipment Subtotal: ${equipmentSubtotal.toFixed(2)}</h3>
         </div>
       )}
+
       {tab === 'labor' && (
         <div>
           <h2>Labor</h2>
           {labor.map((item, i) => {
-            const crewDays = item.prodRate > 0 ? Math.ceil(item.wetLF / item.prodRate) : 0;
-            const base = crewDays * item.rate;
+            const days = item.prodRate > 0 ? Math.ceil(item.wetLF / item.prodRate) : 0;
+            const base = days * item.rate;
             const total = base * (1 + item.markup / 100);
             return (
               <div key={i} style={{ marginBottom: '15px' }}>
@@ -174,7 +210,7 @@ const App = () => {
                   style={{ width: '60px', marginLeft: '10px' }}
                 />
                 <div style={{ marginTop: '5px' }}>
-                  Crew Days: <strong>{crewDays}</strong> | Cost w/ Markup: <strong>${total.toFixed(2)}</strong>
+                  Crew Days: <strong>{days}</strong> | Cost w/ Markup: <strong>${total.toFixed(2)}</strong>
                 </div>
               </div>
             );
