@@ -1,68 +1,40 @@
 import React, { useState } from 'react';
 
-const rentalTypes = ['Day', 'Week', 'Month'];
-
 const App = () => {
-  const [tab, setTab] = useState('materials');
+  const [tab, setTab] = useState('labor');
 
-  const [materials, setMaterials] = useState([
-    { name: 'Resin', unitCost: 30, quantity: 0 },
-    { name: 'End Seals', unitCost: 50, quantity: 0 },
-    { name: 'Mineral Oil', unitCost: 10, quantity: 0 },
-    { name: 'Rope', unitCost: 5, quantity: 0 },
-    { name: 'Sawzall Blades', unitCost: 3, quantity: 0 },
-    { name: 'Razor Blades', unitCost: 1, quantity: 0 },
-    { name: 'Ratchet Straps', unitCost: 12, quantity: 0 },
-    { name: 'Duct Tape', unitCost: 4, quantity: 0 },
+  const [labor, setLabor] = useState([
+    { diameter: '6"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 300, markup: 0 },
+    { diameter: '8"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 250, markup: 0 },
+    { diameter: '12"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 200, markup: 0 },
+    { diameter: '24"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 150, markup: 0 },
+    { diameter: '36"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 100, markup: 0 },
+    { diameter: '48"', wetLF: 0, dryLF: 0, rate: 2500, prodRate: 75, markup: 0 }
   ]);
 
-  const [equipment, setEquipment] = useState([
-    { type: 'Pump 4"', rentalType: 'Day', rate: 100, quantity: 0 },
-    { type: 'Pump 6"', rentalType: 'Day', rate: 120, quantity: 0 },
-    { type: 'Pump 8"', rentalType: 'Day', rate: 150, quantity: 0 },
-    { type: 'Pump 12"', rentalType: 'Day', rate: 180, quantity: 0 },
-    { type: 'Plug 6"–10"', rentalType: 'Day', rate: 40, quantity: 0 },
-    { type: 'Plug 8"–12"', rentalType: 'Day', rate: 50, quantity: 0 },
-    { type: 'Plug 12"–18"', rentalType: 'Day', rate: 70, quantity: 0 },
-    { type: 'Plug 12"–24"', rentalType: 'Day', rate: 90, quantity: 0 },
-    { type: 'Plug 15"–30"', rentalType: 'Day', rate: 130, quantity: 0 },
-    { type: 'Plug 20"–40"', rentalType: 'Day', rate: 175, quantity: 0 },
-    { type: 'Plug 24"–48"', rentalType: 'Day', rate: 220, quantity: 0 },
-    { type: 'Plug 24"–60"', rentalType: 'Day', rate: 320, quantity: 0 },
-    { type: 'Plug 48"–72"', rentalType: 'Day', rate: 520, quantity: 0 },
-    { type: 'Plug 54"–96"', rentalType: 'Day', rate: 600, quantity: 0 },
-    { type: 'Urethane Plug 24"', rentalType: 'Day', rate: 90, quantity: 0 },
-    { type: 'Urethane Plug 30"', rentalType: 'Day', rate: 130, quantity: 0 },
-    { type: 'Urethane Plug 36"', rentalType: 'Day', rate: 175, quantity: 0 },
-    { type: 'Urethane Plug 48"', rentalType: 'Day', rate: 220, quantity: 0 },
-    { type: 'Boiler Truck', rentalType: 'Day', rate: 450, quantity: 0 },
-    { type: 'Excavator', rentalType: 'Day', rate: 500, quantity: 0 },
-    { type: 'Compressor 375cfm', rentalType: 'Day', rate: 100, quantity: 0 },
-    { type: 'Compressor 750cfm', rentalType: 'Day', rate: 150, quantity: 0 },
-    { type: 'Compressor 925cfm', rentalType: 'Day', rate: 200, quantity: 0 },
-    { type: 'Compressor 1600cfm', rentalType: 'Day', rate: 300, quantity: 0 },
-  ]);
-
-  const handleMaterialChange = (index, field, value) => {
-    const newMaterials = [...materials];
-    newMaterials[index][field] = parseFloat(value);
-    setMaterials(newMaterials);
+  const handleLaborChange = (index, field, value) => {
+    const newList = [...labor];
+    newList[index][field] = parseFloat(value);
+    setLabor(newList);
   };
 
-  const handleEquipmentChange = (index, field, value) => {
-    const newList = [...equipment];
-    newList[index][field] = field === 'rate' || field === 'quantity' ? parseFloat(value) : value;
-    setEquipment(newList);
+  const calculateCrewDays = (wet, dry, rate) => {
+    const total = wet + dry;
+    return rate > 0 ? Math.ceil(total / rate) : 0;
   };
 
-  const materialsSubtotal = materials.reduce((sum, item) => sum + item.unitCost * item.quantity, 0);
-  const equipmentSubtotal = equipment.reduce((sum, item) => sum + item.rate * item.quantity, 0);
+  const laborSubtotal = labor.reduce((sum, item) => {
+    const days = calculateCrewDays(item.wetLF, item.dryLF, item.prodRate);
+    const base = days * item.rate;
+    const withMarkup = base * (1 + item.markup / 100);
+    return sum + withMarkup;
+  }, 0);
 
   return (
     <div style={{ fontFamily: 'Arial', padding: '1rem' }}>
       <h1>Cobra CIPP Estimator</h1>
       <nav style={{ marginBottom: '1rem' }}>
-        {['materials', 'equipment', 'labor', 'diameters', 'summary'].map(t => (
+        {['materials', 'equipment', 'labor', 'fuel', 'subcontractors', 'diameters', 'summary'].map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -81,80 +53,71 @@ const App = () => {
         ))}
       </nav>
 
-      {tab === 'materials' && (
+      {tab === 'labor' && (
         <div>
-          <h2>Materials</h2>
-          {materials.map((item, i) => (
-            <div key={i} style={{ marginBottom: '10px' }}>
-              <strong>{item.name}</strong><br />
-              Unit Cost: $
-              <input
-                type="number"
-                value={item.unitCost}
-                onChange={e => handleMaterialChange(i, 'unitCost', e.target.value)}
-                style={{ width: '80px', marginRight: '10px' }}
-              />
-              Quantity:
-              <input
-                type="number"
-                value={item.quantity}
-                onChange={e => handleMaterialChange(i, 'quantity', e.target.value)}
-                style={{ width: '80px', marginLeft: '10px' }}
-              />
-              <span style={{ marginLeft: '15px' }}>
-                Line Total: ${(item.unitCost * item.quantity).toFixed(2)}
-              </span>
-            </div>
-          ))}
-          <h3>Materials Subtotal: ${materialsSubtotal.toFixed(2)}</h3>
+          <h2>Labor</h2>
+          {labor.map((item, i) => {
+            const days = calculateCrewDays(item.wetLF, item.dryLF, item.prodRate);
+            const base = days * item.rate;
+            const total = base * (1 + item.markup / 100);
+            return (
+              <div key={i} style={{ marginBottom: '15px' }}>
+                <strong>{item.diameter}</strong><br />
+                Wet LF:
+                <input
+                  type="number"
+                  value={item.wetLF}
+                  onChange={e => handleLaborChange(i, 'wetLF', e.target.value)}
+                  style={{ width: '80px', marginLeft: '10px' }}
+                />
+                Dry LF:
+                <input
+                  type="number"
+                  value={item.dryLF}
+                  onChange={e => handleLaborChange(i, 'dryLF', e.target.value)}
+                  style={{ width: '80px', marginLeft: '10px' }}
+                />
+                Prod Rate:
+                <input
+                  type="number"
+                  value={item.prodRate}
+                  onChange={e => handleLaborChange(i, 'prodRate', e.target.value)}
+                  style={{ width: '80px', marginLeft: '10px' }}
+                />
+                Crew Rate:
+                <input
+                  type="number"
+                  value={item.rate}
+                  onChange={e => handleLaborChange(i, 'rate', e.target.value)}
+                  style={{ width: '100px', marginLeft: '10px' }}
+                />
+                Markup %:
+                <input
+                  type="number"
+                  value={item.markup}
+                  onChange={e => handleLaborChange(i, 'markup', e.target.value)}
+                  style={{ width: '60px', marginLeft: '10px' }}
+                />
+                <div style={{ marginTop: '5px' }}>
+                  Crew Days: <strong>{days}</strong> | Cost w/ Markup: <strong>${total.toFixed(2)}</strong>
+                </div>
+              </div>
+            );
+          })}
+          <h3>Labor Subtotal: ${laborSubtotal.toFixed(2)}</h3>
         </div>
       )}
 
-      {tab === 'equipment' && (
-        <div>
-          <h2>Equipment</h2>
-          {equipment.map((item, i) => (
-            <div key={i} style={{ marginBottom: '10px' }}>
-              <strong>{item.type}</strong><br />
-              Rental Type:
-              <select
-                value={item.rentalType}
-                onChange={e => handleEquipmentChange(i, 'rentalType', e.target.value)}
-                style={{ margin: '0 10px' }}
-              >
-                {rentalTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-              Rate: $
-              <input
-                type="number"
-                value={item.rate}
-                onChange={e => handleEquipmentChange(i, 'rate', e.target.value)}
-                style={{ width: '80px', marginLeft: '10px' }}
-              />
-              Qty:
-              <input
-                type="number"
-                value={item.quantity}
-                onChange={e => handleEquipmentChange(i, 'quantity', e.target.value)}
-                style={{ width: '60px', marginLeft: '10px' }}
-              />
-              <span style={{ marginLeft: '15px' }}>
-                Line Total: ${(item.rate * item.quantity).toFixed(2)}
-              </span>
-            </div>
-          ))}
-          <h3>Equipment Subtotal: ${equipmentSubtotal.toFixed(2)}</h3>
-        </div>
-      )}
-
-      {tab !== 'materials' && tab !== 'equipment' && (
+      {tab !== 'labor' && (
         <div>
           <h2>{tab.charAt(0).toUpperCase() + tab.slice(1)} (coming next)</h2>
         </div>
       )}
     </div>
+  );
+};
+
+export default App;
   );
 };
 
