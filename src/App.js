@@ -155,13 +155,16 @@ const App = () => {
         </div>
       )}
 
-            {tab === 'labor' && (
+                  {tab === 'labor' && (
         <div>
           <h2>Labor</h2>
           {labor.map((item, i) => {
-            const days = item.prodRate > 0 ? Math.ceil(item.wetLF / item.prodRate) : 0;
-            const base = days * item.rate + item.overhead;
+            const crewDays = item.prodRate > 0 ? Math.ceil(item.wetLF / item.prodRate) : 0;
+            const crewCost = crewDays * item.rate;
+            const overheadCost = crewDays * item.overhead;
+            const base = crewCost + overheadCost;
             const total = base * (1 + item.markup / 100);
+
             return (
               <div key={i} style={{ marginBottom: '15px' }}>
                 <strong>{item.diameter}</strong><br />
@@ -186,7 +189,7 @@ const App = () => {
                   onChange={e => handleLaborChange(i, 'rate', e.target.value)}
                   style={{ width: '100px', marginLeft: '10px' }}
                 />
-                Overhead:
+                Overhead ($/day):
                 <input
                   type="number"
                   value={item.overhead}
@@ -201,7 +204,9 @@ const App = () => {
                   style={{ width: '60px', marginLeft: '10px' }}
                 />
                 <div style={{ marginTop: '5px' }}>
-                  Crew Days: <strong>{days}</strong> | Total: <strong>${total.toFixed(2)}</strong>
+                  Crew Days: <strong>{crewDays}</strong><br />
+                  Crew Cost: ${crewCost.toFixed(2)} | Overhead: ${overheadCost.toFixed(2)}<br />
+                  Total w/ Markup: <strong>${total.toFixed(2)}</strong>
                 </div>
               </div>
             );
@@ -209,6 +214,7 @@ const App = () => {
           <h3>Labor Subtotal: ${laborSubtotal.toFixed(2)}</h3>
         </div>
       )}
+
 
 
       {tab !== 'materials' && tab !== 'equipment' && tab !== 'labor' && (
