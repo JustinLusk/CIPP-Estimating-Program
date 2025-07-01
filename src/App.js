@@ -82,20 +82,77 @@ const App = () => {
     { diameter: '72"', wetLF: 0, prodRate: 300, rate: 2100, overhead: 4300, markup: 0 }
   ]);
 
-  return (
-    <div style={{ fontFamily: 'Arial', padding: '20px' }}>
-      <h1>Cobra CIPP Estimator</h1>
-      <nav style={{ marginBottom: '20px' }}>
-        {['materials', 'equipment', 'fuel', 'subcontractors', 'labor'].map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            style={{ marginRight: '10px', padding: '10px', cursor: 'pointer' }}
-          >
-            {t.charAt(0).toUpperCase() + t.slice(1)}
-          </button>
-        ))}
-      </nav>
+const [wetLiner, setWetLiner] = useState([{ diameter: '', thickness: '', footage: 0, markup: 0 }]);
+const [dryLiner, setDryLiner] = useState([{ diameter: '', thickness: '', footage: 0, markup: 0 }]);
+
+const wetPricing = {
+  '6"': {
+    '4.5': 11.35, '6': 12.5, '7.5': 13.6, '9': 14.8, '10.5': 16.2, '12': 17.3, '13.5': 18.7,
+    '15': 20.2, '16.5': 21.6, '18': 23.1, '19.5': 24.5, '21': 25.9, '22.5': 27.3, '24': 28.8,
+    '25.5': 30.2, '27': 31.6, '28.5': 33.1, '30': 34.5, '31.5': 36.0, '33': 37.4
+  },
+  // Add other diameters: 8", 10", 12", ..., 72"
+};
+
+const dryPricing = {
+  '6"': {
+    '4.5': 3.51, '6': 3.71, '7.5': 3.91, '9': 4.11, '10.5': 4.31, '12': 4.51, '13.5': 4.71,
+    '15': 4.91, '16.5': 5.11, '18': 5.31, '19.5': 5.51, '21': 5.71, '22.5': 5.91, '24': 6.11,
+    '25.5': 6.31, '27': 6.51, '28.5': 6.71, '30': 6.91, '31.5': 7.11, '33': 7.31
+  },
+  // Add other diameters: 8", 10", 12", ..., 72"
+};
+
+const handleWetChange = (i, field, value) => {
+  const updated = [...wetLiner];
+  updated[i][field] = value;
+  setWetLiner(updated);
+};
+
+const handleDryChange = (i, field, value) => {
+  const updated = [...dryLiner];
+  updated[i][field] = value;
+  setDryLiner(updated);
+};
+
+const wetSubtotal = wetLiner.reduce((sum, row) => {
+  const price = wetPricing[row.diameter]?.[row.thickness] || 0;
+  return sum + row.footage * price * (1 + row.markup / 100);
+}, 0);
+
+const drySubtotal = dryLiner.reduce((sum, row) => {
+  const price = dryPricing[row.diameter]?.[row.thickness] || 0;
+  return sum + row.footage * price * (1 + row.markup / 100);
+}, 0);
+
+  
+return (
+  <div style={{ fontFamily: 'Arial', padding: '1rem' }}>
+    <h1>Cobra CIPP Estimator</h1>
+
+    <nav style={{ marginBottom: '1rem' }}>
+      {[ 'materials', 'equipment', 'labor', 'fuel', 'subcontractors', 'wet liner', 'dry liner', 'summary' ].map(t => (
+        <button
+          key={t}
+          onClick={() => setTab(t)}
+          style={{
+            marginRight: '10px',
+            padding: '0.5rem 1rem',
+            background: tab === t ? '#28a745' : '#eee',
+            color: tab === t ? '#fff' : '#000',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}
+        >
+          {t.charAt(0).toUpperCase() + t.slice(1)}
+        </button>
+      ))}
+    </nav>
+
+    {/* Tab content starts below */}
+    {tab === 'materials' && (...)}
+
 
       {tab === 'materials' && (
         <div>
@@ -245,6 +302,37 @@ const App = () => {
     </div>
   );
 };
+
+{tab === 'wet liner' && (
+  <div>
+    <h2>Wet Liner</h2>
+    {wetLiner.map((row, i) => {
+      const thicknesses = wetPricing[row.diameter] || {};
+      const price = thicknesses[row.thickness] || 0;
+      const total = row.footage * price * (1 + row.markup / 100);
+      return (
+        <div key={i} style={{ marginBottom: '15px' }}>
+          Diameter:
+          <select value={row.diameter} onChange={e => handleWetChange(i, 'diameter', e.target.value)}>
+            <option value="">Select</option>
+            {Object.keys(wetPricing).map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+          Thickness:
+          <select value={row.thickness} onChange={e => handleWetChange(i, 'thickness', e.target.value)}>
+            <option value="">Select</option>
+            {Object.keys(thicknesses).map(t => <option key={t} value={t}>{t} mm</option>)}
+          </select>
+          LF:
+          <input type="number" value={row.footage} onChange={e => handleWetChange(i, 'footage', e.target.value)} />
+          Markup %:
+          <input type="number" value={row.markup} onChange={e => handleWetChange(i, 'markup', e.target.value)} />
+          <span style={{ marginLeft: '15px' }}>Total: ${total.toFixed(2)}</span>
+        </div>
+      );
+    })}
+    <h3>Wet Liner Subtotal: ${wetSubtotal.toFixed(2)}</h3>
+  </div>
+)}
 
 export default App;
 
