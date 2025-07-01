@@ -129,20 +129,6 @@ const drySubtotal = dryLiner.reduce((sum, row) => {
   return sum + total;
 }, 0);
 
-
-const handleLinerChange = (index, field, value) => {
-  const newList = [...liner];
-  newList[index][field] = field === 'thickness' ? value : parseFloat(value);
-  setLiner(newList);
-};
-
-const linerSubtotal = liner.reduce((sum, item) => {
-  const totalLF = item.wet + item.dry;
-  const cost = totalLF * item.unitCost * (1 + item.markup / 100);
-  return sum + cost;
-}, 0);
-
-  
 const handleSubsChange = (index, field, value) => {
   const newList = [...subs];
   newList[index][field] = parseFloat(value);
