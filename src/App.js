@@ -71,6 +71,28 @@ const [fuel, setFuel] = useState([
   { name: 'Pickup Truck', gallons: 0, cost: 4.5, markup: 0 }
 ]);
 
+const [subs, setSubs] = useState([
+  { name: 'Clean/TV Crew', base: 0, markup: 0 },
+  { name: 'Lateral/T-Liner Crew', base: 0, markup: 0 },
+  { name: 'Divers', base: 0, markup: 0 },
+  { name: 'Chemical Grout Crew', base: 0, markup: 0 },
+  { name: 'Sod/Restoration', base: 0, markup: 0 },
+  { name: 'Pipe Contractor', base: 0, markup: 0 },
+  { name: 'Paving', base: 0, markup: 0 },
+  { name: 'Concrete', base: 0, markup: 0 }
+]);
+
+const handleSubsChange = (index, field, value) => {
+  const newList = [...subs];
+  newList[index][field] = parseFloat(value);
+  setSubs(newList);
+};
+
+const subsSubtotal = subs.reduce((sum, item) => {
+  return sum + item.base * (1 + item.markup / 100);
+}, 0);
+
+  
 const handleFuelChange = (index, field, value) => {
   const newList = [...fuel];
   newList[index][field] = parseFloat(value);
@@ -281,6 +303,37 @@ const fuelSubtotal = fuel.reduce((sum, item) => {
   </div>
 )}
 
+      {tab === 'subcontractors' && (
+        <div>
+          <h2>Subcontractors</h2>
+          {subs.map((item, i) => {
+            const total = item.base * (1 + item.markup / 100);
+            return (
+              <div key={i} style={{ marginBottom: '10px' }}>
+                <strong>{item.name}</strong><br />
+                Base Cost: $
+                <input
+                  type="number"
+                  value={item.base}
+                  onChange={e => handleSubsChange(i, 'base', e.target.value)}
+                  style={{ width: '100px', marginRight: '10px' }}
+                />
+                Markup %:
+                <input
+                  type="number"
+                  value={item.markup}
+                  onChange={e => handleSubsChange(i, 'markup', e.target.value)}
+                  style={{ width: '80px', marginRight: '10px' }}
+                />
+                Total: ${total.toFixed(2)}
+              </div>
+            );
+          })}
+          <h3>Subcontractors Subtotal: ${subsSubtotal.toFixed(2)}</h3>
+        </div>
+      )}
+
+  
     </div>
   );
 };
