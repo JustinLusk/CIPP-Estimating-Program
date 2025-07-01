@@ -82,25 +82,53 @@ const [subs, setSubs] = useState([
   { name: 'Concrete', base: 0, markup: 0 }
 ]);
 
-const [liner, setLiner] = useState([
-  { diameter: '6"', wet: 0, dry: 0, thickness: '', unitCost: 25, markup: 0 },
-  { diameter: '8"', wet: 0, dry: 0, thickness: '', unitCost: 28, markup: 0 },
-  { diameter: '10"', wet: 0, dry: 0, thickness: '', unitCost: 30, markup: 0 },
-  { diameter: '12"', wet: 0, dry: 0, thickness: '', unitCost: 32, markup: 0 },
-  { diameter: '15"', wet: 0, dry: 0, thickness: '', unitCost: 34, markup: 0 },
-  { diameter: '18"', wet: 0, dry: 0, thickness: '', unitCost: 36, markup: 0 },
-  { diameter: '21"', wet: 0, dry: 0, thickness: '', unitCost: 38, markup: 0 },
-  { diameter: '24"', wet: 0, dry: 0, thickness: '', unitCost: 40, markup: 0 },
-  { diameter: '27"', wet: 0, dry: 0, thickness: '', unitCost: 42, markup: 0 },
-  { diameter: '30"', wet: 0, dry: 0, thickness: '', unitCost: 44, markup: 0 },
-  { diameter: '36"', wet: 0, dry: 0, thickness: '', unitCost: 46, markup: 0 },
-  { diameter: '42"', wet: 0, dry: 0, thickness: '', unitCost: 48, markup: 0 },
-  { diameter: '48"', wet: 0, dry: 0, thickness: '', unitCost: 50, markup: 0 },
-  { diameter: '54"', wet: 0, dry: 0, thickness: '', unitCost: 52, markup: 0 },
-  { diameter: '60"', wet: 0, dry: 0, thickness: '', unitCost: 54, markup: 0 },
-  { diameter: '66"', wet: 0, dry: 0, thickness: '', unitCost: 56, markup: 0 },
-  { diameter: '72"', wet: 0, dry: 0, thickness: '', unitCost: 58, markup: 0 }
+const wetPricing = {
+  '6"': { '4.5': 11.35, '6': 12.5, '7.5': 13.6 },
+  '8"': { '4.5': 13.03, '6': 15.14, '7.5': 17.33 },
+  '10"': { '4.5': 15.59, '6': 17.88, '7.5': 20.07, '9': 23.4 },
+  '12"': { '4.5': 17.92, '6': 20.85, '7.5': 23.78, '9': 27.72 }
+  // Add remaining from full sheet
+};
+
+const dryPricing = {
+  '6"': { '4.5': 3.51, '6': 3.71 },
+  '8"': { '4.5': 4.05, '6': 4.29, '7.5': 4.64 },
+  '10"': { '4.5': 5.02, '6': 5.29, '7.5': 5.78, '9': 6.04 }
+  // Add remaining from full sheet
+};
+
+const [wetLiner, setWetLiner] = useState([
+  { diameter: '', thickness: '', footage: 0, markup: 0 }
 ]);
+
+const [dryLiner, setDryLiner] = useState([
+  { diameter: '', thickness: '', footage: 0, markup: 0 }
+]);
+
+const handleWetChange = (i, field, value) => {
+  const updated = [...wetLiner];
+  updated[i][field] = value;
+  setWetLiner(updated);
+};
+
+const handleDryChange = (i, field, value) => {
+  const updated = [...dryLiner];
+  updated[i][field] = value;
+  setDryLiner(updated);
+};
+
+const wetSubtotal = wetLiner.reduce((sum, row) => {
+  const price = (wetPricing[row.diameter]?.[row.thickness]) || 0;
+  const total = row.footage * price * (1 + row.markup / 100);
+  return sum + total;
+}, 0);
+
+const drySubtotal = dryLiner.reduce((sum, row) => {
+  const price = (dryPricing[row.diameter]?.[row.thickness]) || 0;
+  const total = row.footage * price * (1 + row.markup / 100);
+  return sum + total;
+}, 0);
+
 
 const handleLinerChange = (index, field, value) => {
   const newList = [...liner];
@@ -366,59 +394,68 @@ const fuelSubtotal = fuel.reduce((sum, item) => {
         </div>
       )}
 
-      {tab === 'liner material' && (
+            {tab === 'wet liner' && (
         <div>
-          <h2>Liner Material</h2>
-          {liner.map((item, i) => {
-            const totalLF = item.wet + item.dry;
-            const total = totalLF * item.unitCost * (1 + item.markup / 100);
+          <h2>Wet Liner</h2>
+          {wetLiner.map((row, i) => {
+            const thicknesses = wetPricing[row.diameter] || {};
+            const price = thicknesses[row.thickness] || 0;
+            const total = row.footage * price * (1 + row.markup / 100);
             return (
               <div key={i} style={{ marginBottom: '15px' }}>
-                <strong>{item.diameter}</strong><br />
-                Wet LF:
-                <input
-                  type="number"
-                  value={item.wet}
-                  onChange={e => handleLinerChange(i, 'wet', e.target.value)}
-                  style={{ width: '80px', marginLeft: '10px' }}
-                />
-                Dry LF:
-                <input
-                  type="number"
-                  value={item.dry}
-                  onChange={e => handleLinerChange(i, 'dry', e.target.value)}
-                  style={{ width: '80px', marginLeft: '10px' }}
-                />
+                Diameter:
+                <select value={row.diameter} onChange={e => handleWetChange(i, 'diameter', e.target.value)}>
+                  <option value="">Select</option>
+                  {Object.keys(wetPricing).map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
                 Thickness:
-                <input
-                  type="text"
-                  value={item.thickness}
-                  onChange={e => handleLinerChange(i, 'thickness', e.target.value)}
-                  style={{ width: '80px', marginLeft: '10px' }}
-                />
-                Unit Cost:
-                <input
-                  type="number"
-                  value={item.unitCost}
-                  onChange={e => handleLinerChange(i, 'unitCost', e.target.value)}
-                  style={{ width: '80px', marginLeft: '10px' }}
-                />
+                <select value={row.thickness} onChange={e => handleWetChange(i, 'thickness', e.target.value)}>
+                  <option value="">Select</option>
+                  {Object.keys(thicknesses).map(t => <option key={t} value={t}>{t} mm</option>)}
+                </select>
+                LF:
+                <input type="number" value={row.footage} onChange={e => handleWetChange(i, 'footage', e.target.value)} />
                 Markup %:
-                <input
-                  type="number"
-                  value={item.markup}
-                  onChange={e => handleLinerChange(i, 'markup', e.target.value)}
-                  style={{ width: '60px', marginLeft: '10px' }}
-                />
-                <span style={{ marginLeft: '15px' }}>
-                  Total: ${total.toFixed(2)}
-                </span>
+                <input type="number" value={row.markup} onChange={e => handleWetChange(i, 'markup', e.target.value)} />
+                <span style={{ marginLeft: '15px' }}>Total: ${total.toFixed(2)}</span>
               </div>
             );
           })}
-          <h3>Liner Subtotal: ${linerSubtotal.toFixed(2)}</h3>
+          <h3>Wet Liner Subtotal: ${wetSubtotal.toFixed(2)}</h3>
         </div>
       )}
+
+      {tab === 'dry liner' && (
+        <div>
+          <h2>Dry Liner</h2>
+          {dryLiner.map((row, i) => {
+            const thicknesses = dryPricing[row.diameter] || {};
+            const price = thicknesses[row.thickness] || 0;
+            const total = row.footage * price * (1 + row.markup / 100);
+            return (
+              <div key={i} style={{ marginBottom: '15px' }}>
+                Diameter:
+                <select value={row.diameter} onChange={e => handleDryChange(i, 'diameter', e.target.value)}>
+                  <option value="">Select</option>
+                  {Object.keys(dryPricing).map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+                Thickness:
+                <select value={row.thickness} onChange={e => handleDryChange(i, 'thickness', e.target.value)}>
+                  <option value="">Select</option>
+                  {Object.keys(thicknesses).map(t => <option key={t} value={t}>{t} mm</option>)}
+                </select>
+                LF:
+                <input type="number" value={row.footage} onChange={e => handleDryChange(i, 'footage', e.target.value)} />
+                Markup %:
+                <input type="number" value={row.markup} onChange={e => handleDryChange(i, 'markup', e.target.value)} />
+                <span style={{ marginLeft: '15px' }}>Total: ${total.toFixed(2)}</span>
+              </div>
+            );
+          })}
+          <h3>Dry Liner Subtotal: ${drySubtotal.toFixed(2)}</h3>
+        </div>
+      )}
+
 
 
     </div>
